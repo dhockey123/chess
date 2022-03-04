@@ -1,149 +1,120 @@
-const grid = document.querySelectorAll('.grid');
-
-const pieces = [];
-
-function logPiece(piece, col, row) {
-  this.piece = piece;
-  this.col = col;
-  this.row = row;
-  pieces.push({ piece, col, row });
-}
-
-function setBoard() {
-  grid.forEach((cell) => {
-    const col = cell.getAttribute('col');
-    const row = cell.getAttribute('row');
-
-    if ((col % 2 === '0') && (row % 2 === '1')) {
-      cell.style.background = '#769656';
-    } else if ((col % 2 === '1') && (row % 2 === '0')) {
-      cell.style.background = '#769656';
-    } else cell.style.background = '#eeeed2';
-    if ((col === '7')) {
-      const pawnW = document.createElement('img');
-      pawnW.src = './icons/pawnW.svg';
-      logPiece('w_pawn', col, row);
-      cell.appendChild(pawnW);
-    }
-    if ((col === '2')) {
-      const pawnW = document.createElement('img');
-      pawnW.src = './icons/pawnB.svg';
-      logPiece('b_pawn', col, row);
-      cell.appendChild(pawnW);
-    }
-
-    if (col === '1' && (row === '1' || row === '8')) {
-      const rookB = document.createElement('img');
-      rookB.src = './icons/rookB.svg';
-      logPiece('b_rook', col, row);
-      cell.appendChild(rookB);
-    }
-    if (col === '8' && (row === '1' || row === '8')) {
-      const rookW = document.createElement('img');
-      rookW.src = './icons/rookW.svg';
-      logPiece('w_rook', col, row);
-      cell.appendChild(rookW);
-    }
-
-    if (col === '1' && (row === '2' || row === '7')) {
-      const knightB = document.createElement('img');
-      knightB.src = './icons/knightB.svg';
-      logPiece('b_knight', col, row);
-      cell.appendChild(knightB);
-    }
-    if (col === '8' && (row === '2' || row === '7')) {
-      const knightW = document.createElement('img');
-      knightW.src = './icons/knightW.svg';
-      logPiece('w_knight', col, row);
-      cell.appendChild(knightW);
-    }
-
-    if (col === '1' && (row === '3' || row === '6')) {
-      const bishopB = document.createElement('img');
-      bishopB.src = './icons/bishopB.svg';
-      logPiece('b_bishop', col, row);
-      cell.appendChild(bishopB);
-    }
-    if (col === '8' && (row === '3' || row === '6')) {
-      const bishopW = document.createElement('img');
-      bishopW.src = './icons/bishopW.svg';
-      logPiece('w_bishop', col, row);
-      cell.appendChild(bishopW);
-    }
-
-    if (col === '1' && (row === '4')) {
-      const queenB = document.createElement('img');
-      queenB.src = './icons/queenB.svg';
-      logPiece('b_queen', col, row);
-      cell.appendChild(queenB);
-    }
-    if (col === '8' && (row === '4')) {
-      const queenW = document.createElement('img');
-      queenW.src = './icons/queenW.svg';
-      logPiece('w_queen', col, row);
-      cell.appendChild(queenW);
-    }
-
-    if (col === '1' && (row === '5')) {
-      const kingB = document.createElement('img');
-      kingB.src = './icons/kingB.svg';
-      logPiece('b_king', col, row);
-      cell.appendChild(kingB);
-    }
-    if (col === '8' && (row === '5')) {
-      const kingW = document.createElement('img');
-      kingW.src = './icons/kingW.svg';
-      logPiece('w_king', col, row);
-      cell.appendChild(kingW);
-    }
-  });
-}
 
 setBoard();
 
-grid.forEach((cell) => {
-  const col = cell.getAttribute('col');
-  const row = cell.getAttribute('row');
+// ------------> DRAG AND DROP <--------------
 
-  cell.addEventListener('click', click);
-});
-let move = false;
+var col, row, obj_id;
 
-let piece;
-let position;
-let c;
-let r;
+var legalMove = false;
+var attackWithPawn = false;
 
-function click(e) {
-  if (e.target.nodeName === 'IMG' && move == false) {
-    piece = e.target;
-    position = e.target.parentNode;
+const element = document.querySelectorAll('img')
+const target = document.querySelectorAll('.grid')
 
-    p = c = position.getAttribute('col');
-    r = position.getAttribute('row');
+element.forEach(i => {
+	i.addEventListener('dragstart', dragstart)
+})
 
-    position.style.filter = 'invert(30%)';
-    move = true;
-  } else if (e.target.nodeName === 'DIV' && move == true) {
-    position.removeChild(piece);
-    position.style.filter = 'invert(0%)';
-    e.target.appendChild(piece);
-    move = false;
-  }
+function dragstart(i){
+	obj_id = Number(i.target.id)
+	targetedPiece = i.target
 }
 
-function release(e) {
-  console.log(e);
+target.forEach(e => {
+	e.addEventListener('dragover', e => e.preventDefault())
+	e.addEventListener('drop', dragDrop)
+})
+
+function dragDrop(e){
+	e.preventDefault();
+	let isTargetOccupied = false;
+	
+	if(e.target.tagName === 'DIV'){
+		col = Number(e.target.getAttribute('col'))
+		row = Number(e.target.getAttribute('row'))
+	}
+	else if(e.target.tagName === 'IMG'){
+		col = Number(e.target.parentNode.getAttribute('col'))
+		row = Number(e.target.parentNode.getAttribute('row'))
+		isTargetOccupied = true;
+	} 	
+
+	makeMove(e, isTargetOccupied)
 }
 
-// function updatePiece(piece, col, row){
-//     pieces
-// }
+// ------------------> Move piece <---------------------
 
-for (const i in pieces) {
-  if (pieces[i].col == 2 && pieces[i].row == 2) {
-    console.log(pieces[i]);
-    console.log(pieces[i].piece);
-    console.log(pieces.splice(i, 1));
-  }
+function makeMove(e, isTargetOccupied){
+	if(isLegalMove(obj_id, col, row)){
+		if(isTargetOccupied){
+			delete Pieces[e.target.id]
+			e.target.parentNode.appendChild(targetedPiece)
+			e.target.parentNode.removeChild(e.target.parentNode.firstElementChild)
+		}
+		else{
+			e.target.appendChild(targetedPiece);
+		}
+		update(col, row, obj_id)
+		legalMove = false;
+	}
+
 }
+
+// --------------> Rules for moving pieces <----------------
+
+function isLegalMove(obj_id, col, row){
+	var piece = Pieces[obj_id];
+	if(piece.name === "pawn"){
+		return isLegalPawn(obj_id, col, row)
+	}
+}
+
+// Determines if pawn can move diagonally and attack
+function pawnAttack(obj_id, col, row){
+	var piece = Pieces[obj_id]
+
+	for(var i in Pieces){
+		if(Pieces[i].colour !== piece.colour && Pieces[i].row === row && Pieces[i].col === col){
+			return true
+		}
+	}
+}
+
+// Legal pawn moves
+function isLegalPawn(obj_id, col, row){
+	let piece = Pieces[obj_id]
+	let col0 = piece.col
+	let row0 = piece.row
+	
+	if(piece.colour === "white"){
+		if(!pawnAttack(obj_id, col, row) && (row0-row)<=2 && col === col0 && piece.moved === false){
+			return true;
+		} 
+		else if(!pawnAttack(obj_id, col, row) && (row0-row) === 1 && col === col0 && piece.moved === true){
+			return true;
+		}
+		else if(pawnAttack(obj_id, col, row) && row0-row === 1 && Math.abs(col0-col) === 1 ){
+			return true;
+		}
+	}
+	if(piece.colour === "black"){	
+		if(!pawnAttack(obj_id, col, row) && (row-row0)<=2 && col == col0 && piece.moved === false ){
+			return true;
+		} 
+		else if(!pawnAttack(obj_id, col, row) && (row-row0) === 1 && col === col0 && piece.moved === true){
+			return true;
+		}
+		else if(pawnAttack(obj_id, col, row) && row-row0 === 1 && Math.abs(col0-col) === 1 ){
+			return true;
+		}
+	}
+}
+
+// Updates piece coordinates 
+function update(col, row, obj_id){
+	Pieces[obj_id].row = row;
+	Pieces[obj_id].col = col;
+	Pieces[obj_id].moved = true;
+}
+
+
