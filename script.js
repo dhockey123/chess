@@ -42,10 +42,10 @@ function dragDrop(e){
 	makeMove(e, isTargetOccupied)
 }
 
-// ------------------> Move piece <---------------------
+// ------------------> DOM Move piece <---------------------
 
 function makeMove(e, isTargetOccupied){
-	if(isLegalMove(obj_id, col, row)){
+	if(isLegalMove(obj_id, col, row)){ // Decided in legalMoves.js
 		if(isTargetOccupied){
 			delete Pieces[e.target.id]
 			e.target.parentNode.appendChild(targetedPiece)
@@ -62,55 +62,6 @@ function makeMove(e, isTargetOccupied){
 
 // --------------> Rules for moving pieces <----------------
 
-function isLegalMove(obj_id, col, row){
-	var piece = Pieces[obj_id];
-	if(piece.name === "pawn"){
-		return isLegalPawn(obj_id, col, row)
-	}
-}
-
-// Determines if pawn can move diagonally and attack
-function pawnAttack(obj_id, col, row){
-	var piece = Pieces[obj_id]
-
-	for(var i in Pieces){
-		if(Pieces[i].colour !== piece.colour && Pieces[i].row === row && Pieces[i].col === col){
-			return true
-		}
-	}
-}
-
-// Legal pawn moves
-function isLegalPawn(obj_id, col, row){
-	let piece = Pieces[obj_id]
-	let col0 = piece.col
-	let row0 = piece.row
-	
-	if(piece.colour === "white"){
-		if(!pawnAttack(obj_id, col, row) && (row0-row)<=2 && col === col0 && piece.moved === false){
-			return true;
-		} 
-		else if(!pawnAttack(obj_id, col, row) && (row0-row) === 1 && col === col0 && piece.moved === true){
-			return true;
-		}
-		else if(pawnAttack(obj_id, col, row) && row0-row === 1 && Math.abs(col0-col) === 1 ){
-			return true;
-		}
-	}
-	if(piece.colour === "black"){	
-		if(!pawnAttack(obj_id, col, row) && (row-row0)<=2 && col == col0 && piece.moved === false ){
-			return true;
-		} 
-		else if(!pawnAttack(obj_id, col, row) && (row-row0) === 1 && col === col0 && piece.moved === true){
-			return true;
-		}
-		else if(pawnAttack(obj_id, col, row) && row-row0 === 1 && Math.abs(col0-col) === 1 ){
-			return true;
-		}
-	}
-}
-
-// Updates piece coordinates 
 function update(col, row, obj_id){
 	Pieces[obj_id].row = row;
 	Pieces[obj_id].col = col;

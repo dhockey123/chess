@@ -4,7 +4,8 @@ function uniqid() {
 
 const Pieces = {};
 
-const grid = document.querySelectorAll('.grid')
+const board = document.querySelector('.board')
+
 
 function createPiece(name, colour, value, col, row) {
   this.name = name;
@@ -15,6 +16,22 @@ function createPiece(name, colour, value, col, row) {
   this.alive = true;
 	this.moved = false;
 }
+
+function drawBoard(){
+	for(var row = 1; row <=8; row++){
+		for(var col = 1; col<=8; col++){
+			const div = document.createElement('div')
+			div.className = 'grid'
+			div.setAttribute('row', row)
+			div.setAttribute('col', col)
+			board.appendChild(div)
+		}
+	}
+}
+
+drawBoard()
+
+const grid = document.querySelectorAll('.grid')
 
 function setBoard() {
   grid.forEach((cell) => {
