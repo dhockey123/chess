@@ -75,7 +75,7 @@ function isLegalBishop(obj_id, col, row, moves){
 	var legal_moves = checkDiagonals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps=7)
 	if(isMoveinLegalMoves(legal_moves, col, row)) return true;
 }
-// More compact way of doing this?
+
 function isLegalKnight(obj_id, col, row, moves){
 	var legal_moves = checkJumps(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves)
 	if(isMoveinLegalMoves(legal_moves, col, row)) return true;
@@ -98,6 +98,7 @@ function isLegalKing(obj_id, col, row, moves){
 	if(isMoveinLegalMoves(legal_moves, col, row)) return true;
 }
 
+// More compact way of doing this?
 function checkJumps(obj_id, col, row, moves){
 	if(row - 1>=1 & col-2 >=1){
 		moves.push([col-2, row-1])
