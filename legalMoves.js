@@ -21,6 +21,7 @@ function isLegalMove(obj_id, col, row) {
   }
 }
 
+
 // Determines if pawn can move diagonally and attack
 function pawnAttack(obj_id, col, row) {
   const piece = Pieces[obj_id];
@@ -61,6 +62,66 @@ function isLegalPawn(obj_id, col, row) {
     }
   }
 }
+// ----------------> WORK <------------------------
+function checkPawn(obj_id, moves){
+
+	// Basic forward movement
+	if(Pieces[obj_id].colour === "white" && Pieces[obj_id].row !== 1){
+		if(Pieces[obj_id].moved === false){
+			moves.push([Pieces[obj_id].col, Pieces[obj_id].row-2])
+			moves.push([Pieces[obj_id].col, Pieces[obj_id].row-1])
+		}
+		else if(Pieces[obj_id].moved === true){
+			moves.push([Pieces[obj_id].col, Pieces[obj_id].row-1])
+		}
+	}
+	else if(Pieces[obj_id].colour === "black" && Pieces[obj_id].row !== 8){
+		if(Pieces[obj_id].moved === false){
+			moves.push([Pieces[obj_id].col, Pieces[obj_id].row+2])
+			moves.push([Pieces[obj_id].col, Pieces[obj_id].row+1])
+		}
+		else if(Pieces[obj_id].moved === true){
+			moves.push([Pieces[obj_id].col, Pieces[obj_id].row+1])
+		}
+	}
+	// Ensure pawn cannot attack pieces in same column
+	for(var i in Pieces){
+		for(var j in moves){
+			if(Pieces[i].col === moves[j][0] && Pieces[i].row === moves[j][1] && Pieces[i] !== Pieces[obj_id]){
+				moves.splice(j, 1)
+			}
+		}
+	}
+
+	// Diagonal attacks
+	if(Pieces[obj_id].colour === "white"){
+		for(var i in Pieces){
+			if(Pieces[i].colour === "black"){
+				if(Pieces[obj_id].col+1 === Pieces[i].col && Pieces[obj_id].row - 1 === Pieces[i].row){
+					moves.push([Pieces[obj_id].col+1, Pieces[obj_id].row-1])
+				}
+				if(Pieces[obj_id].col-1 === Pieces[i].col && Pieces[obj_id].row - 1 === Pieces[i].row){
+					moves.push([Pieces[obj_id].col-1, Pieces[obj_id].row-1])
+				}
+			}
+		}
+	}
+	if(Pieces[obj_id].colour === "black"){
+		for(var i in Pieces){
+			if(Pieces[i].colour === "white"){
+				if(Pieces[obj_id].col+1 === Pieces[i].col && Pieces[obj_id].row + 1 === Pieces[i].row){
+					moves.push([Pieces[obj_id].col+1, Pieces[obj_id].row+1])
+				}
+				if(Pieces[obj_id].col-1 === Pieces[i].col && Pieces[obj_id].row + 1 === Pieces[i].row){
+					moves.push([Pieces[obj_id].col-1, Pieces[obj_id].row+1])
+				}
+			}
+		}
+	
+	}
+	return moves[0]
+}
+// ----------------> END OF WORK <------------------------
 
 function isMoveinLegalMoves(legal_moves, col, row) {
   for (const i in legal_moves) {
@@ -138,7 +199,6 @@ function checkHorizontalsVerticals(obj_id, col, row, moves, maxSteps) {
   let B_blocked = false; // down
   let C_blocked = false; // left
   let D_blocked = false; // right
-  console.log(maxSteps);
   for (let i = 1; i <= maxSteps; i++) {
     if (!A_blocked) {
       if (row - i >= 1) {

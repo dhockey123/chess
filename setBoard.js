@@ -20,9 +20,17 @@ function drawBoard() {
   for (let row = 1; row <= 8; row++) {
     for (let col = 1; col <= 8; col++) {
       const div = document.createElement('div');
+
       div.className = 'grid';
       div.setAttribute('row', row);
       div.setAttribute('col', col);
+
+      if ((row % 2 === 0) && (col % 2 === 1)) {
+        div.style.background = '#769656';
+      } else if ((row % 2 === 1) && (col % 2 === 0)) {
+        div.style.background = '#769656';
+      } else div.style.background = '#eeeed2';
+
       board.appendChild(div);
     }
   }
@@ -37,12 +45,6 @@ function setBoard() {
     const row = Number(cell.getAttribute('row'));
     const col = Number(cell.getAttribute('col'));
     const id = uniqid();
-
-    if ((row % 2 === 0) && (col % 2 === 1)) {
-      cell.style.background = '#769656';
-    } else if ((row % 2 === 1) && (col % 2 === 0)) {
-      cell.style.background = '#769656';
-    } else cell.style.background = '#eeeed2';
 
     if ((row === 7)) {
       const pawnW = document.createElement('img');
