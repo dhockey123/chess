@@ -2,7 +2,7 @@ setBoard();
 
 // ------------> DRAG AND DROP <--------------
 
-let col; let row; let obj_id;
+let col; let row; let obj_id; let legal_moves;
 
 const element = document.querySelectorAll('img');
 const target = document.querySelectorAll('.grid');
@@ -13,6 +13,7 @@ element.forEach((i) => {
 
 function dragstart(i) {
   obj_id = Number(i.target.id);
+  legal_moves = LegalMoves(obj_id);
   targetedPiece = i.target;
 }
 
@@ -24,7 +25,7 @@ target.forEach((e) => {
 function dragDrop(e) {
   e.preventDefault();
   let isTargetOccupied = false;
-  console.log(e.target);
+  // console.log(e.target);
   if (e.target.tagName === 'DIV') {
     col = Number(e.target.getAttribute('col'));
     row = Number(e.target.getAttribute('row'));
@@ -40,7 +41,8 @@ function dragDrop(e) {
 // ------------------> DOM Move piece <---------------------
 
 function makeMove(e, isTargetOccupied) {
-  if (isLegalMove(obj_id, col, row)) { // Decided in legalMoves.js
+  // const legal_moves = LegalMoves(obj_id)
+  if (isMoveinLegalMoves(legal_moves, col, row)) { // Decided in legalMoves.js
     if (isTargetOccupied) {
       delete Pieces[e.target.id];
       e.target.parentNode.appendChild(targetedPiece);
@@ -51,6 +53,8 @@ function makeMove(e, isTargetOccupied) {
     update(col, row, obj_id);
     legalMove = false;
   }
+
+  AImakeMove();
 }
 
 // -----------------------------------------------
@@ -63,69 +67,36 @@ function update(col, row, obj_id) {
 
 // --------------> COMPUTER MAKES MOVE <----------------
 
-let isWhite = true;
+function createBlack(name, value, col, row) {
+  this.name = name;
+  this.value = value;
+  this.row = row;
+  this.col = col;
+  this.alive = true;
+  this.moved = false;
+}
 
 // Error: multiple turns by same player
 function getRandomPieceMakeRandomMove() {
-  const lengthPieces = Object.keys(Pieces).length;
+  const blackPieces = {};
+
+  for (var i in Pieces) {
+    if (Pieces[i].colour === 'black') {
+      blackPieces[i] = new createBlack(Pieces[i].name, Pieces[i].value, Pieces[i].col, Pieces[i].row);
+    }
+  }
+
+  const lengthPieces = Object.keys(blackPieces).length;
   const randomPiece = Math.floor(Math.random() * lengthPieces);
 
-  const obj_id = Object.keys(Pieces)[randomPiece];
-
-  if (Pieces[obj_id].colour === 'white' && isWhite === false) {
-    getRandomPieceMakeRandomMove();
-  } else if (Pieces[obj_id].colour === 'black' && isWhite === true) {
-    getRandomPieceMakeRandomMove();
-  } else if (Pieces[obj_id].colour === 'white' && isWhite === true) {
-    moves = AILegalMoves(obj_id);
-    if (moves.length === 0) {
-      getRandomPieceMakeRandomMove();
-    } else {
-      isWhite = false;
-      // console.log(Pieces[obj_id].colour)
-      randomMove = moves[Math.floor(Math.random() * moves.length)];
-      return { obj_id, randomMove };
-    }
-  } else if (Pieces[obj_id].colour === 'black' && isWhite === false) {
-    moves = AILegalMoves(obj_id);
-    if (moves.length === 0) {
-      getRandomPieceMakeRandomMove();
-    } else {
-      isWhite = true;
-      // console.log(Pieces[obj_id].colour)
-      randomMove = moves[Math.floor(Math.random() * moves.length)];
-      return { obj_id, randomMove };
-    }
+  const obj_id = Object.keys(blackPieces)[randomPiece];
+  console.log(Pieces[i].colour);
+  moves = LegalMoves(obj_id);
+  if (moves.length !== 0) {
+    randomMove = moves[Math.floor(Math.random() * moves.length)];
+    return { obj_id, randomMove };
   }
-}
-
-function AILegalMoves(obj_id) {
-  const moves = [];
-  const piece = Pieces[obj_id];
-  // console.log(piece.name)
-
-  if (piece.name === 'pawn') {
-    moves.concat(checkPawn(obj_id, moves));
-  }
-  if (piece.name === 'bishop') {
-    moves.concat(checkDiagonals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps = 7));
-  }
-  if (piece.name === 'knight') {
-    moves.concat(checkJumps(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves));
-  }
-  if (piece.name === 'rook') {
-    moves.concat(checkHorizontalsVerticals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps = 7));
-  }
-  if (piece.name === 'queen') {
-    moves.concat(checkDiagonals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps = 7));
-    moves.concat(checkHorizontalsVerticals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps = 7));
-  }
-  if (piece.name === 'king') {
-    moves.concat(checkDiagonals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps = 1));
-    moves.concat(checkHorizontalsVerticals(obj_id, Pieces[obj_id].col, Pieces[obj_id].row, moves, maxSteps = 1));
-  }
-
-  return moves;
+  getRandomPieceMakeRandomMove();
 }
 
 function AImakeMove() {
@@ -136,7 +107,7 @@ function AImakeMove() {
   } else {
     const currentPiece = document.getElementById(move.obj_id);
     obj_id = move.obj_id;
-
+    console.log(Pieces[obj_id]);
     move = move.randomMove;
     const target = document.querySelector(`[col='${move[0]}'][row='${move[1]}']`);
 
@@ -154,8 +125,8 @@ function AImakeMove() {
       x = 100000;
     }
 
-    setTimeout(AImakeMove, x);
+    // setTimeout(AImakeMove, x);
   }
 }
 
-AImakeMove();
+// AImakeMove();
