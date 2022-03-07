@@ -88,40 +88,9 @@ function checkPawn(obj_id, moves) {
   }
   return moves[0];
 }
-// ----------------> END OF WORK <------------------------
 
-// function orderMovebyValue(move){
-// 	this.col = move[0]
-// 	this.row = move[1]
-// }
 
-function makeBestMove(obj_id) {
-  // const valuedMoves = {}
-  base_value = 0;
-  moves = LegalMoves(obj_id);
-  const new_moves = [];
-  for (const m in moves) {
-    value = getValueofMove(obj_id, moves[m]);
-    if (value > base_value) {
-      base_value = value;
-      new_moves.push(moves[m]);
-    }
-    // valuedMoves[value] = new orderMovebyValue(moves[m])
-    console.log(new_moves);
-  }
 
-  // console.log("------------------\n"+moves)
-  // console.log(new_moves)
-  // console.log("VALUED: "+ valuedMoves)
-}
-
-function isMoveinLegalMoves(legal_moves, col, row) {
-  for (const i in legal_moves) {
-    if (legal_moves[i][0] === col && legal_moves[i][1] === row) {
-      return true;
-    }
-  }
-}
 
 // More compact way of doing this?
 function checkJumps(obj_id, moves) {
@@ -282,10 +251,11 @@ function isPathBlocked(obj_id, col, row) {
   }
 }
 
-function getValueofMove(obj_id, move) {
-  for (const i in Pieces) {
-    if (Pieces[i].col === move[0] && Pieces[i].row === move[1] && Pieces[obj_id].colour !== Pieces[i].colour) {
-      return Pieces[i].value;
-    } return 0;
+
+function isMoveinLegalMoves(legal_moves, col, row) {
+  for (const i in legal_moves) {
+    if (legal_moves[i][0] === col && legal_moves[i][1] === row) {
+      return true;
+    }
   }
 }
